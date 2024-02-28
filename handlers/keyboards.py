@@ -13,10 +13,11 @@ def inline_keyboard():
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons, resize_keyboard=True)
     return keyboard
 
-def reply_keyboard():
+def travel_guide_keyboard():
     buttons = [
-        [types.KeyboardButton(text='text1')],
-        [types.KeyboardButton(text='text2')]
+        [types.KeyboardButton(text='⚙️ Настройки')],
+        [types.KeyboardButton(text='👤 Профиль')],
+        [types.KeyboardButton(text='ℹ️ Информация')]
     ]
     keyboard = types.ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
     return keyboard
