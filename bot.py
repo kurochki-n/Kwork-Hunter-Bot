@@ -7,6 +7,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from data.config import BOT_TOKEN
 from handlers.user import router as user_router
 from loader import loop
+from api.parser import run_parse
 
 
 logging.basicConfig(
@@ -24,7 +25,7 @@ async def main():
     dp.include_router(user_router)
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, skip_updates=False) 
-
+    await run_parse()
 
 if __name__ == "__main__":
     loop.run_until_complete(main())
