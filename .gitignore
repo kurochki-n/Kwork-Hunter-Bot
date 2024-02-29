@@ -162,3 +162,4 @@ cython_debug/
 logs/*.log
 .env
 temp/*.csv
+test.py
