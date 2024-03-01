@@ -1,8 +1,7 @@
 import aiohttp
 from bs4 import BeautifulSoup
-from threading import Thread
 from fake_useragent import UserAgent
-
+import asyncio
 
 class KworkParser():
     
@@ -15,31 +14,50 @@ class KworkParser():
 
 
     async def get_categories(self):
-        categories = []
-        async with self.session.get(url="https://kwork.ru/manage_kworks", headers=self.headers) as response:
-            soup = BeautifulSoup(response, "lxml")
-            result = soup.find('//*[@id="body"]/div[6]/div[1]/div[2]/div[1]/ul[1').text
-            print(result)
-        return categories
+        async with self.session.get(url="https://kwork.ru/categories", headers=self.headers) as response:
+            soup = BeautifulSoup(await response.text(), "lxml")
+            result = soup.find_all("h2", {"class": "categories-item__title not-h2 js-categories-collapse-header"})
+            
+            categories = []
+            for element in result:
+                categories.append(element.text)
+            return categories
     
     
-    async def get_subcategories(self, category):
-        subcategories = []
-        return subcategories
+    async def get_subcategories_by_category(self, category):
+        async with self.session.get(url="https://kwork.ru/categories", headers=self.headers) as response:
+            soup = BeautifulSoup(await response.text(), "lxml")
+            result = soup.find("div", {"class": "all-categories"}).find_all("div", {"class": "js-categories-collapse-header categories-item__subtitle"})
+            
+            subcategories = []
+            for element in result:
+                subcategories.append(element.text)
+            return subcategories
+    
+    
+    async def get_all_subcategories(self):
+        async with self.session.get(url="https://kwork.ru/categories", headers=self.headers) as response:
+            soup = BeautifulSoup(await response.text(), "lxml")
+            result = soup.find("div", {"class": "all-categories"}).find_all("div", {"class": "js-categories-collapse-header categories-item__subtitle"})
+            
+            subcategories = []
+            for element in result:
+                subcategories.append(element.text)
+            return subcategories
     
     
     async def parse_kwork(self, message, subcategory):
         pass
-        # async with self.session.get(url="https://service.urentbike.ru/gatewayclient/api/v1/payment/profile",
-        #                                 headers=(access_headers or self.access_headers)) as response_payment_profile:
-        #         return await response_payment_profile.json()
 
 
 async def run_parse(message):
     async with aiohttp.ClientSession() as session:
         parser = KworkParser(session=session)
-        for cat in await parser.get_categories():
-            for subcat in await parser.get_subcategories(cat):
-                th = Thread(target=parser.parse_kwork, args=(message, subcat,))
-                th.start()
+        
+        tasks = []
+        for subcat in await parser.get_all_subcategories():
+            task = asyncio.create_task(parser.parse_kwork(message, subcat))
+            tasks.append(task)
+    
+        await asyncio.gather(*tasks)
         
