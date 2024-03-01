@@ -3,7 +3,6 @@ import aiohttp
 from aiogram import types
 from aiogram.types.web_app_info import WebAppInfo
 
-
 from api.parser import KworkParser
 
 
