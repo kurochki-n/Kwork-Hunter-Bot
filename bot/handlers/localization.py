@@ -46,7 +46,8 @@ def project_info(data: Dict[str, Any]) -> str:
            f"Размещено проектов на бирже: {data['user']['data']['wants_count']}   " \
            f"<a href='{projects_url}'>Смотреть открытые ({data['getWantsActiveCount']})</a>\n" \
            f"Нанято: {data['user']['data']['wants_hired_percent']}%\n\n" \
-           f"Осталось: {data['timeLeft']}\nПредложений: {data['kwork_count']}"
+           f"Осталось: {data['timeLeft']}\n" \
+           f"Предложений: {data['kwork_count']}"
            
            
 def user_profile(user: User) -> str:

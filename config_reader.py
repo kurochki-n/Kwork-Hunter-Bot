@@ -8,6 +8,9 @@ class Config(BaseSettings):
     BOT_TOKEN: SecretStr
     CHANNEL_ID: SecretStr
     DB_URL: SecretStr
+    
+    WEBAPP_PORT: Optional[int] = None
+    WEBHOOK_PORT: Optional[int] = None
 
     WEBAPP_URL: Optional[SecretStr] = None
     WEBAPP_PID: Optional[int] = None
@@ -21,8 +24,8 @@ class Config(BaseSettings):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        webapp_url, webapp_pid = start_tuna(5173, 'kworkhunter-webapp')
-        webhook_url, webhook_pid = start_tuna(8000, 'kworkhunter-webhook')
+        webapp_url, webapp_pid = start_tuna(self.WEBAPP_PORT, 'kworkhunter-webapp')
+        webhook_url, webhook_pid = start_tuna(self.WEBHOOK_PORT, 'kworkhunter-webhook')
         
         if webapp_url and webhook_url:
             self.WEBAPP_URL = SecretStr(webapp_url)
