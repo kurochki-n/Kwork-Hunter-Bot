@@ -36,7 +36,7 @@ async def auth(
                             status_code=400,
                             content={
                                 "ok": False, 
-                                "message": response_data["error"]
+                                "message": f"Kwork: {response_data['error']}"
                             }
                         )
                     
