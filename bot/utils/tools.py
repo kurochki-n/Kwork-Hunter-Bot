@@ -22,7 +22,8 @@ async def get_admins() -> List[int]:
             
             
 async def projects_tracking(user: User, message: Message, db_session: AsyncSession) -> None:
-    async with ClientSession() as session:
+    connector = ProxyConnector.from_url(config.PROXY_URL.get_secret_value())
+    async with ClientSession(connector=connector) as session:
         kwork = KworkAPI(session)
         kwork.headers["Cookie"] = user.kwork_cookie
         success, projects = await kwork.get_projects()

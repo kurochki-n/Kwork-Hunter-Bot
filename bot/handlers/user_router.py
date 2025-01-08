@@ -1,22 +1,23 @@
 from aiohttp import ClientSession
-from typing import List, Dict
+from aiohttp_socks import ProxyConnector
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from aiogram import types, F, Router
+from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import Command, StateFilter, CommandStart
+from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import localization as loc, keyboards as kb
-from .states import States
 from bot.middlewares.channel_sub import CheckSubscription
 from api.kwork import KworkAPI
 from db import User
 from bot.utils import tools
+from config_reader import config
+
 
 
 router = Router()
@@ -71,7 +72,8 @@ async def enable_projects_tracking(callback: CallbackQuery, db_session: AsyncSes
         await callback.answer()
         return
     
-    async with ClientSession() as session:
+    connector = ProxyConnector.from_url(config.PROXY_URL.get_secret_value())
+    async with ClientSession(connector=connector) as session:
         kwork = KworkAPI(session)
         success, cookie, _ = await kwork.login(user.kwork_login, user.kwork_password)
         

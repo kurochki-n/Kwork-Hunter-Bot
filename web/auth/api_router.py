@@ -1,6 +1,8 @@
 import asyncio
-import aiohttp
 import logging
+
+from aiohttp import ClientSession
+from aiohttp_socks import ProxyConnector
 
 from fastapi import APIRouter, Request, Form, Query
 from fastapi.responses import JSONResponse
@@ -11,6 +13,7 @@ from db import User
 from core import _sessionmaker, bot
 from api.kwork import KworkAPI
 from bot.handlers import localization as loc
+from config_reader import config
 
 
 router = APIRouter()
@@ -26,7 +29,8 @@ async def auth(
 ) -> JSONResponse:
     async with _sessionmaker() as db_session:
         try:
-            async with aiohttp.ClientSession() as session:
+            connector = ProxyConnector.from_url(config.PROXY_URL.get_secret_value())
+            async with ClientSession(connector=connector) as session:
                 kwork = KworkAPI(session)
                 success, _, response_data = await kwork.login(login, password)
                 

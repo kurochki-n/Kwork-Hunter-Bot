@@ -1,7 +1,9 @@
 import logging
+
+from typing import Dict, Any, Tuple
+
 from aiohttp import ClientSession
 from http.cookies import SimpleCookie
-from typing import List, Dict, Any, Tuple, Optional
 
 
 class KworkAPI(object):
