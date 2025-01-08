@@ -2,18 +2,20 @@ import logging
 from aiohttp import ClientSession
 from http.cookies import SimpleCookie
 from typing import List, Dict, Any, Tuple, Optional
+import uuid
 
 
 class KworkAPI(object):
     
     def __init__(self, session: ClientSession):
         self.session = session
+        self.boundary = str(uuid.uuid4())
         self.headers = {
             "Accept": "application/json, text/plain, */*",
             "Accept-Encoding": "gzip, deflate, br, zstd",
             "Accept-Language": "ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
             "Connection": "keep-alive",
-            "Content-Type": "application/json",
+            "Content-Type": f"multipart/form-data; boundary={self.boundary}",
             "Host": "kwork.ru",
             "Origin": "https://kwork.ru",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
@@ -129,8 +131,10 @@ class KworkAPI(object):
         """
         body = ""
         for key, value in kwargs.items():
-            body += f"------WebKitFormBoundary\nContent-Disposition: form-data; name='{key}'\n\n{value}\n"
-        body += "-----WebKitFormBoundary--"
+            body += f"--{self.boundary}\r\n"
+            body += f"Content-Disposition: form-data; name=\"{key}\"\r\n\r\n"
+            body += f"{value}\r\n"
+        body += f"--{self.boundary}--\r\n"
         return body
     
     
