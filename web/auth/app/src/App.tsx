@@ -179,7 +179,7 @@ function App() {
     setIsLoading(true);
     
     try {
-      const userId = tg?.initDataUnsafe?.user?.id;
+      const userId = 1234567890;
       
       if (!userId) {
         setError('Ошибка: не удалось получить ID пользователя');
@@ -212,13 +212,23 @@ function App() {
         });
         
         clearTimeout(timeout);
+        
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+        
+        const responseText = await response.text();
+        console.log('Response text:', responseText);
+        
+        if (!responseText) {
+          throw new Error('Пустой ответ от сервера');
+        }
 
         if (!response.ok) {
-          const errorData = await response.json();
+          const errorData = JSON.parse(responseText);
           throw new Error(errorData.message || 'Произошла ошибка при авторизации');
         }
 
-        const data = await response.json();
+        const data = JSON.parse(responseText);
         
         if (data.ok) {
           if (tg) {
