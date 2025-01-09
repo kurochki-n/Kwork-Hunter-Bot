@@ -15,7 +15,7 @@ class KworkAPI(object):
             "Accept-Encoding": "gzip, deflate, br, zstd",
             "Accept-Language": "ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
             "Connection": "keep-alive",
-            "Content-Type": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
             "Host": "kwork.ru",
             "Origin": "https://kwork.ru",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
@@ -41,7 +41,7 @@ class KworkAPI(object):
             }
         """
         url = "https://kwork.ru/api/user/login"
-        body = {
+        data = {
             "l_username": username,
             "l_password": password,
             "jlog": 1,
@@ -51,17 +51,21 @@ class KworkAPI(object):
             "l_remember_me": "1"
         }
         
-        async with self.session.post(url, headers=self.headers, json=body) as response:
-            if response.status == 200:
-                response_data = await response.json()
-                if response_data["success"]:
-                    return True, response.cookies, response_data
+        try:
+            async with self.session.post(url, headers=self.headers, data=data) as response:
+                if response.status == 200:
+                    response_data = await response.json()
+                    if response_data["success"]:
+                        return True, response.cookies, response_data
+                    else:
+                        logging.error(f"Login failed with error: {response_data['error']}")
+                        return False, None, response_data
                 else:
-                    logging.error(f"Login failed with error: {response_data['error']}")
-                    return False, None, response_data
-            else:
-                logging.error(f"Login failed with status code: {response.status}")
-                return False, None, None
+                    logging.error(f"Login failed with status code: {response.status}")
+                    return False, None, None
+        except Exception as e:
+            logging.error(f"Login request failed with error: {str(e)}")
+            return False, None, None
 
 
     async def get_projects(self) -> Tuple[bool, Dict[str, Any] | None]:
