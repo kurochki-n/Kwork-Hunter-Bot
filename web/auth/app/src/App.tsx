@@ -217,7 +217,7 @@ function App() {
         if (!contentType || !contentType.includes("application/json")) {
           const textResponse = await response.text();
           console.error('Unexpected response type:', contentType, 'Response:', textResponse);
-          throw new Error('Сервер вернул неверный формат данных');
+          throw new Error(`${contentType} ${textResponse}`);
         }
 
         // Проверяем, что ответ не пустой
