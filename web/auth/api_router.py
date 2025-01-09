@@ -4,7 +4,7 @@ import logging
 from aiohttp import ClientSession
 from aiohttp_socks import ProxyConnector
 
-from fastapi import APIRouter, Request, Form, Query
+from fastapi import APIRouter, Body
 from fastapi.responses import JSONResponse
 
 from sqlalchemy import select
@@ -21,64 +21,71 @@ router = APIRouter()
 
 @router.post("/auth")
 async def auth(
-    request: Request,
-    login: str = Form(...),
-    password: str = Form(...),
-    user_id: int = Query(...),
-    message_id: int = Query(...)
+    login: str = Body(...),
+    password: str = Body(...),
+    user_id: int = Body(...),
+    message_id: int = Body(...)
 ) -> JSONResponse:
     async with _sessionmaker() as db_session:
         try:
+            logging.info(f"Starting auth process for user_id: {user_id}")
             connector = ProxyConnector.from_url(config.PROXY_URL.get_secret_value())
             async with ClientSession(connector=connector) as session:
                 kwork = KworkAPI(session)
+                logging.info("Attempting Kwork login")
                 success, _, response_data = await kwork.login(login, password)
                 
                 if not success:
-                    if response_data:
-                        return JSONResponse(
-                            status_code=400,
-                            content={
-                                "ok": False, 
-                                "message": {response_data['error']}
-                            }
-                        )
-                    
+                    error_message = response_data.get('error') if response_data else "Неизвестная ошибка"
+                    logging.error(f"Kwork login failed: {error_message}")
                     return JSONResponse(
-                        status_code=500,
+                        status_code=400,
                         content={
                             "ok": False, 
-                            "message": "Произошла ошибка... Не волнуйтесь, мы уже работаем над этим!"
+                            "message": f"Kwork: {error_message}"
                         }
                     )
                 
-            user = await db_session.scalar(select(User).where(User.id == user_id))
+                logging.info("Kwork login successful, updating database")
+                user = await db_session.scalar(select(User).where(User.id == user_id))
+                if not user:
+                    logging.error(f"User not found in database: {user_id}")
+                    return JSONResponse(
+                        status_code=404,
+                        content={
+                            "ok": False,
+                            "message": "Пользователь не найден"
+                        }
+                    )
+                    
+                user.kwork_login = login
+                user.kwork_password = password
+                await db_session.commit()
                 
-            user.kwork_login = login
-            user.kwork_password = password
-            await db_session.commit()
-            
-            await bot.delete_message(
-                chat_id=user_id, 
-                message_id=message_id
-            )
-            asyncio.create_task(handle_temp_message(user_id))
-            
-            return JSONResponse(
-                status_code=200,
-                content={
-                    "ok": True, 
-                    "message": "Данные успешно сохранены"
-                }
-            )
+                try:
+                    await bot.delete_message(
+                        chat_id=user_id, 
+                        message_id=message_id
+                    )
+                    asyncio.create_task(handle_temp_message(user_id))
+                except Exception as e:
+                    logging.error(f"Error deleting message: {e}")
+                
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "ok": True, 
+                        "message": "Данные успешно сохранены"
+                    }
+                )
         except Exception as e:
+            logging.error(f"Auth error: {str(e)}", exc_info=True)
             await db_session.rollback()
-            logging.error(f"Error: {e}")
             return JSONResponse(
                 status_code=500,
                 content={
                     "ok": False, 
-                    "message": "Произошла ошибка... Не волнуйтесь, мы уже работаем над этим!"
+                    "message": "Произошла ошибка при обработке запроса"
                 }
             )
         

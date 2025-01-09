@@ -191,24 +191,43 @@ function App() {
         return;
       }
       
-      const formData = new FormData();
-      formData.append('login', login);
-      formData.append('password', password);
-
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000);
       
       try {
-        const response = await fetch(`/auth?user_id=${userId}&message_id=${messageId}`, {
+        const response = await fetch(`/auth`, {
           method: 'POST',
-          body: formData,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            login,
+            password,
+            user_id: userId,
+            message_id: messageId
+          }),
           credentials: 'include',
           signal: controller.signal
         });
         
         clearTimeout(timeout);
 
-        const data = await response.json();
+        // Проверяем тип контента
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const textResponse = await response.text();
+          console.error('Unexpected response type:', contentType, 'Response:', textResponse);
+          throw new Error('Сервер вернул неверный формат данных');
+        }
+
+        // Проверяем, что ответ не пустой
+        const text = await response.text();
+        if (!text) {
+          throw new Error('Сервер вернул пустой ответ');
+        }
+
+        // Парсим JSON
+        const data = JSON.parse(text);
         
         if (data.ok) {
           if (tg) {
