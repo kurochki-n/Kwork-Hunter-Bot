@@ -43,7 +43,8 @@ async def auth(
                         content={
                             "ok": False, 
                             "message": f"Kwork: {error_message}"
-                        }
+                        },
+                        headers={"Content-Type": "application/json"}
                     )
                 
                 logging.info("Kwork login successful, updating database")
@@ -55,7 +56,8 @@ async def auth(
                         content={
                             "ok": False,
                             "message": "Пользователь не найден"
-                        }
+                        },
+                        headers={"Content-Type": "application/json"}
                     )
                     
                 user.kwork_login = login
@@ -76,7 +78,8 @@ async def auth(
                     content={
                         "ok": True, 
                         "message": "Данные успешно сохранены"
-                    }
+                    },
+                    headers={"Content-Type": "application/json"}
                 )
         except Exception as e:
             logging.error(f"Auth error: {str(e)}", exc_info=True)
@@ -86,7 +89,8 @@ async def auth(
                 content={
                     "ok": False, 
                     "message": "Произошла ошибка при обработке запроса"
-                }
+                },
+                headers={"Content-Type": "application/json"}
             )
         
         

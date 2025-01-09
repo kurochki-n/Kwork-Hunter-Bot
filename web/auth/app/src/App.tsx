@@ -214,14 +214,14 @@ function App() {
 
         // Проверяем тип контента
         const contentType = response.headers.get("content-type");
+        const text = await response.text();
+        
         if (!contentType || !contentType.includes("application/json")) {
-          const textResponse = await response.text();
-          console.error('Unexpected response type:', contentType, 'Response:', textResponse);
-          throw new Error(`${contentType} ${textResponse}`);
+          console.error('Unexpected response type:', contentType, 'Response:', text);
+          throw new Error(`Неверный формат ответа: ${contentType}. Ответ: ${text}`);
         }
 
         // Проверяем, что ответ не пустой
-        const text = await response.text();
         if (!text) {
           throw new Error('Сервер вернул пустой ответ');
         }
