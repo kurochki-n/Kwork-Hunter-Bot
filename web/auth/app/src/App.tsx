@@ -195,10 +195,11 @@ function App() {
       const timeout = setTimeout(() => controller.abort(), 30000);
       
       try {
-        const response = await fetch(`http://localhost:8000/auth`, {
+        const response = await fetch(`http://127.0.0.1:8000/auth`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json'
           },
           body: JSON.stringify({
             login,
@@ -212,11 +213,15 @@ function App() {
         
         clearTimeout(timeout);
 
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Произошла ошибка при авторизации');
+        }
+
         const data = await response.json();
         
         if (data.ok) {
           if (tg) {
-            //await tg.sendData(JSON.stringify({ success: true }));
             tg.close();
           }
         } else {
@@ -228,10 +233,11 @@ function App() {
             setError('Превышено время ожидания ответа от сервера');
           } else {
             console.error('Fetch error:', err);
-            setError(`Ошибка запроса: ${err.message}`);
+            setError(err.message || 'Произошла ошибка при запросе к серверу');
           }
         } else {
-          throw err;
+          console.error('Unknown error:', err);
+          setError('Произошла неизвестная ошибка');
         }
       }
     } catch (err) {
