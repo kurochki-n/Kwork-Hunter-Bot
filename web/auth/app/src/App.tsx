@@ -207,7 +207,12 @@ function App() {
         });
         
         clearTimeout(timeout);
-        
+
+                
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
         
         if (data.ok) {
@@ -224,7 +229,7 @@ function App() {
             setError('Превышено время ожидания ответа от сервера');
           } else {
             console.error('Fetch error:', err);
-            setError('Произошла ошибка при подключении к серверу');
+            setError(`Ошибка запроса: ${err.message}`);
           }
         } else {
           throw err;
