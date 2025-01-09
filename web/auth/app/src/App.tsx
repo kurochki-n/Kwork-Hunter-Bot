@@ -218,7 +218,7 @@ function App() {
         
         if (!contentType || !contentType.includes("application/json")) {
           console.error('Unexpected response type:', contentType, 'Response:', text);
-          throw new Error(`Неверный формат ответа: ${contentType}. Ответ: ${text}`);
+          throw new Error(`${text}`);
         }
 
         // Проверяем, что ответ не пустой
