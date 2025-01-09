@@ -6,6 +6,7 @@ from aiohttp_socks import ProxyConnector
 
 from fastapi import APIRouter, Body
 from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 
 from sqlalchemy import select
 
@@ -40,10 +41,10 @@ async def auth(
                     logging.error(f"Kwork login failed: {error_message}")
                     return JSONResponse(
                         status_code=400,
-                        content={
+                        content=jsonable_encoder({
                             "ok": False, 
                             "message": f"Kwork: {error_message}"
-                        },
+                        }),
                         headers={"Content-Type": "application/json"}
                     )
                 
@@ -53,10 +54,10 @@ async def auth(
                     logging.error(f"User not found in database: {user_id}")
                     return JSONResponse(
                         status_code=404,
-                        content={
+                        content=jsonable_encoder({
                             "ok": False,
                             "message": "Пользователь не найден"
-                        },
+                        }),
                         headers={"Content-Type": "application/json"}
                     )
                     
@@ -75,10 +76,10 @@ async def auth(
                 
                 return JSONResponse(
                     status_code=200,
-                    content={
+                    content=jsonable_encoder({
                         "ok": True, 
                         "message": "Данные успешно сохранены"
-                    },
+                    }),
                     headers={"Content-Type": "application/json"}
                 )
         except Exception as e:
@@ -86,10 +87,10 @@ async def auth(
             await db_session.rollback()
             return JSONResponse(
                 status_code=500,
-                content={
+                content=jsonable_encoder({
                     "ok": False, 
                     "message": "Произошла ошибка при обработке запроса"
-                },
+                }),
                 headers={"Content-Type": "application/json"}
             )
         

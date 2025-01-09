@@ -212,26 +212,11 @@ function App() {
         
         clearTimeout(timeout);
 
-        // Проверяем тип контента
-        const contentType = response.headers.get("content-type");
-        const text = await response.text();
-        
-        if (!contentType || !contentType.includes("application/json")) {
-          console.error('Unexpected response type:', contentType, 'Response:', text);
-          throw new Error(`${text}`);
-        }
-
-        // Проверяем, что ответ не пустой
-        if (!text) {
-          throw new Error('Сервер вернул пустой ответ');
-        }
-
-        // Парсим JSON
-        const data = JSON.parse(text);
+        const data = await response.json();
         
         if (data.ok) {
           if (tg) {
-            await tg.sendData(JSON.stringify({ success: true }));
+            //await tg.sendData(JSON.stringify({ success: true }));
             tg.close();
           }
         } else {
