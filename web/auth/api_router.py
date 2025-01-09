@@ -39,26 +39,30 @@ async def auth(
                 if not success:
                     error_message = response_data.get('error') if response_data else "Неизвестная ошибка"
                     logging.error(f"Kwork login failed: {error_message}")
+                    response_content = jsonable_encoder({
+                        "ok": False, 
+                        "message": f"Kwork: {error_message}"
+                    })
+                    logging.info(f"Sending error response: {response_content}")
                     return JSONResponse(
                         status_code=400,
-                        content=jsonable_encoder({
-                            "ok": False, 
-                            "message": f"Kwork: {error_message}"
-                        }),
-                        headers={"Content-Type": "application/json"}
+                        content=response_content,
+                        media_type="application/json"
                     )
                 
                 logging.info("Kwork login successful, updating database")
                 user = await db_session.scalar(select(User).where(User.id == user_id))
                 if not user:
                     logging.error(f"User not found in database: {user_id}")
+                    response_content = jsonable_encoder({
+                        "ok": False,
+                        "message": "Пользователь не найден"
+                    })
+                    logging.info(f"Sending not found response: {response_content}")
                     return JSONResponse(
                         status_code=404,
-                        content=jsonable_encoder({
-                            "ok": False,
-                            "message": "Пользователь не найден"
-                        }),
-                        headers={"Content-Type": "application/json"}
+                        content=response_content,
+                        media_type="application/json"
                     )
                     
                 user.kwork_login = login
@@ -74,24 +78,28 @@ async def auth(
                 except Exception as e:
                     logging.error(f"Error deleting message: {e}")
                 
+                response_content = jsonable_encoder({
+                    "ok": True, 
+                    "message": "Данные успешно сохранены"
+                })
+                logging.info(f"Sending success response: {response_content}")
                 return JSONResponse(
                     status_code=200,
-                    content=jsonable_encoder({
-                        "ok": True, 
-                        "message": "Данные успешно сохранены"
-                    }),
-                    headers={"Content-Type": "application/json"}
+                    content=response_content,
+                    media_type="application/json"
                 )
         except Exception as e:
             logging.error(f"Auth error: {str(e)}", exc_info=True)
             await db_session.rollback()
+            response_content = jsonable_encoder({
+                "ok": False, 
+                "message": "Произошла ошибка при обработке запроса"
+            })
+            logging.info(f"Sending error response: {response_content}")
             return JSONResponse(
                 status_code=500,
-                content=jsonable_encoder({
-                    "ok": False, 
-                    "message": "Произошла ошибка при обработке запроса"
-                }),
-                headers={"Content-Type": "application/json"}
+                content=response_content,
+                media_type="application/json"
             )
         
         
