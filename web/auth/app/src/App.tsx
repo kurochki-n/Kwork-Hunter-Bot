@@ -195,7 +195,7 @@ function App() {
       const timeout = setTimeout(() => controller.abort(), 30000);
       
       try {
-        const response = await fetch(`/auth`, {
+        const response = await fetch(`https://kworkhunter-webhook.ru.tuna.am/auth`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
