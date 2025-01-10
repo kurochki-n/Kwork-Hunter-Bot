@@ -8,10 +8,10 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   server: {
-    port: 5173,
+    port: 3000,
     proxy: {
       '/auth': {
-        target: 'http://localhost:8000',
+        target: 'https://kworkhunter-webhook.ru.tuna.am',
         changeOrigin: true
       }
     }
