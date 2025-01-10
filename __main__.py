@@ -54,6 +54,13 @@ dp = Dispatcher(storage=MemoryStorage())
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://kworkhunter-webapp.ru.tuna.am"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
 

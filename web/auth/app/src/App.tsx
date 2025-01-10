@@ -198,7 +198,9 @@ function App() {
         const response = await fetch(`/auth`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'https://kworkhunter-webapp.ru.tuna.am',
+            'Origin': 'https://kworkhunter-webapp.ru.tuna.am'
           },
           body: JSON.stringify({
             login: login,
