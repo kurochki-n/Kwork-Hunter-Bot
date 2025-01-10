@@ -24,7 +24,7 @@ router.callback_query.middleware.register(CheckSubscription())
 
 @router.message(CommandStart())
 async def start(message: Message, db_session: AsyncSession) -> None:
-    await message.answer(text=loc.start_message(message.from_user.username), reply_markup=kb.start_keyboard())
+    await message.answer(text=loc.start_message(message.from_user.username), reply_markup=kb.main_keyboard())
     
     user = await db_session.scalar(select(User).where(User.id == message.from_user.id))
     if not user.kwork_login:
@@ -39,7 +39,7 @@ async def start(message: Message, db_session: AsyncSession) -> None:
     
 @router.callback_query(F.data == "check_sub")
 async def check_sub(callback: CallbackQuery) -> None:
-    await callback.message.answer(text=loc.start_message(callback.from_user.username), reply_markup=kb.start_keyboard())
+    await callback.message.answer(text=loc.start_message(callback.from_user.username), reply_markup=kb.main_keyboard())
     await callback.answer()
     
     

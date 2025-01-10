@@ -14,7 +14,7 @@ from sqlalchemy import select
 from db import User
 from core import _sessionmaker, bot
 from api.kwork import KworkAPI
-from bot.handlers import localization as loc
+from bot.handlers import localization as loc, keyboards as kb
 
 
 router = APIRouter()
@@ -101,7 +101,8 @@ async def auth(
 async def handle_temp_message(user_id: int):
     temp_message = await bot.send_message(
         chat_id=user_id, 
-        text=loc.temp_message(seconds=5)
+        text=loc.temp_message(seconds=5),
+        reply_markup=kb.main_keyboard()
     )
     await asyncio.sleep(1)
     

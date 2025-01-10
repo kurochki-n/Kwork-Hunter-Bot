@@ -6,7 +6,7 @@ from db import User
 from config_reader import config
 
 
-def start_keyboard() -> ReplyKeyboardMarkup:
+def main_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(keyboard=[
         [KeyboardButton(text="👤 Профиль")],
         [KeyboardButton(text="💬 Помощь")]
