@@ -52,8 +52,8 @@ def project_info(data: Dict[str, Any]) -> str:
            
 def user_profile(user: User, username: str) -> str:
     username = username if username else "Пользователь"
-    login = user.login if user.login else "не указан"
-    password = f"<span class='tg-spoiler'>{user.password}</span>" if user.password else "не указан"
+    login = user.kwork_login if user.kwork_login else "не указан"
+    password = f"<span class='tg-spoiler'>{user.kwork_password}</span>" if user.kwork_password else "не указан"
     return f"👤 <b>{username}:</b>\n\n" \
            f"🔸 <b>Логин Kwork:</b> {login}\n" \
            f"🔸 <b>Пароль Kwork:</b> {password}\n\n" \
