@@ -57,7 +57,7 @@ def user_profile(user: User, username: str) -> str:
     return f"👤 <b>{username}:</b>\n\n" \
            f"🔸 <b>Логин Kwork:</b> {login}\n" \
            f"🔸 <b>Пароль Kwork:</b> {password}\n\n" \
-           f"🔸 <b>ID:</b> {user.id}"
+           f"🏷 <b>ID:</b> <code>{user.id}</code>"
     
             
 def enter_kwork_login() -> str:
