@@ -216,20 +216,14 @@ function App() {
         
         console.log('Response status:', response.status);
         console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-        
-        const responseText = await response.text();
-        console.log('Response text:', responseText);
-        
-        if (!responseText) {
-          throw new Error('Пустой ответ от сервера');
-        }
 
+
+        const data = await response.json();
+        console.log('Response data:', data);
+        
         if (!response.ok) {
-          const errorData = JSON.parse(responseText);
-          throw new Error(errorData.message || 'Произошла ошибка при авторизации');
+          throw new Error(data.message || 'Произошла ошибка при авторизации');
         }
-
-        const data = JSON.parse(responseText);
         
         if (data.ok) {
           if (tg) {
