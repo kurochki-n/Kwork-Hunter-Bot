@@ -52,9 +52,7 @@ def project_info(data: Dict[str, Any]) -> str:
            
 def user_profile(user: User, username: str) -> str:
     username = username if username else "Пользователь"
-    auth = "✅" if user.kwork_cookie else "❌"
     return f"👤 <b>{username}:</b>\n\n" \
-           f"🔐 <b>Авторизация Kwork:</b> {auth}\n" \
            f"🏷 <b>ID:</b> <code>{user.id}</code>"
     
             
@@ -75,7 +73,7 @@ def projects_tracking_disabled() -> str:
 
 
 def temp_message(seconds: int) -> str:
-    return f"<b>✅ Авторизация прошла успешно!\n\n<i>Сообщение будет удалено через {seconds} секунд...</i>"
+    return f"<b>✅ Авторизация прошла успешно!</b>\n\n<i>Сообщение будет удалено через {seconds} секунд...</i>"
 
 
 def help_sections() -> str:  
