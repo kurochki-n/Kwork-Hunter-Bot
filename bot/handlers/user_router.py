@@ -1,5 +1,4 @@
 from aiohttp import ClientSession
-from aiohttp_socks import ProxyConnector
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -16,8 +15,6 @@ from bot.middlewares.channel_sub import CheckSubscription
 from api.kwork import KworkAPI
 from db import User
 from bot.utils import tools
-from config_reader import config
-
 
 
 router = Router()
@@ -72,8 +69,7 @@ async def enable_projects_tracking(callback: CallbackQuery, db_session: AsyncSes
         await callback.answer()
         return
     
-    connector = ProxyConnector.from_url(config.PROXY_URL.get_secret_value())
-    async with ClientSession(connector=connector) as session:
+    async with ClientSession() as session:
         kwork = KworkAPI(session)
         success, cookie, _ = await kwork.login(user.kwork_login, user.kwork_password)
         

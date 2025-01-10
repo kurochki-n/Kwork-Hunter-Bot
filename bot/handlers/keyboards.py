@@ -5,6 +5,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from db import User
 from config_reader import config
 
+
 def start_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(keyboard=[
         [KeyboardButton(text="Профиль")],

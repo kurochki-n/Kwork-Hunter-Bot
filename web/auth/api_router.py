@@ -2,9 +2,8 @@ import asyncio
 import logging
 
 from aiohttp import ClientSession
-from aiohttp_socks import ProxyConnector
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
@@ -16,7 +15,6 @@ from db import User
 from core import _sessionmaker, bot
 from api.kwork import KworkAPI
 from bot.handlers import localization as loc
-from config_reader import config
 
 
 router = APIRouter()
@@ -36,8 +34,7 @@ async def auth(
     async with _sessionmaker() as db_session:
         try:
             logging.info(f"Starting auth process for user_id: {request.user_id}")
-            connector = ProxyConnector.from_url(config.PROXY_URL.get_secret_value())
-            async with ClientSession(connector=connector) as session:
+            async with ClientSession() as session:
                 kwork = KworkAPI(session)
                 logging.info("Attempting Kwork login")
                 success, _, response_data = await kwork.login(request.login, request.password)
