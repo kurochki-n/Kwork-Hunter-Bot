@@ -43,15 +43,15 @@ async def check_sub(callback: CallbackQuery) -> None:
     await callback.answer()
     
     
-@router.message(F.text == "Профиль")
+@router.message(F.text == "👤 Профиль")
 async def profile(message: Message, db_session: AsyncSession) -> None:
     user = await db_session.scalar(select(User).where(User.id == message.from_user.id))
     await message.answer(text=loc.user_profile(user), reply_markup=kb.profile_keyboard(user))
     
     
-@router.message(F.text == "Помощь")
+@router.message(F.text == "💬 Помощь")
 async def help(message: Message, state: FSMContext, db_session: AsyncSession) -> None:
-    ...
+    await message.answer(text=loc.help_sections(), reply_markup=kb.help_keyboard())
     
     
 @router.callback_query(F.data == "enable_tracking")
@@ -115,6 +115,32 @@ async def disable_projects_tracking(callback: CallbackQuery, db_session: AsyncSe
     
     await callback.message.edit_reply_markup(reply_markup=kb.profile_keyboard(user))
     await callback.answer(text=loc.projects_tracking_disabled())
+    
+    
+@router.callback_query(F.data == "manual")
+async def manual(callback: CallbackQuery) -> None:
+    await callback.answer()
+    await callback.message.edit_text(text=loc.manual(), reply_markup=kb.help_back_keyboard())
+    
+    
+@router.callback_query(F.data == "support")
+async def support(callback: CallbackQuery) -> None:
+    await callback.answer()
+    await callback.message.edit_text(text=loc.support(), reply_markup=kb.help_back_keyboard())
+    
+    
+@router.callback_query(F.data == "back")
+async def back(callback: CallbackQuery) -> None:
+    await callback.answer()
+    await callback.message.edit_text(text=loc.help_sections(), reply_markup=kb.help_keyboard())
+
+
+
+
+
+
+
+
 
 
 

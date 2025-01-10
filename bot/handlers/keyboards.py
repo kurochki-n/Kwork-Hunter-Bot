@@ -8,8 +8,8 @@ from config_reader import config
 
 def start_keyboard() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(keyboard=[
-        [KeyboardButton(text="Профиль")],
-        [KeyboardButton(text="Помощь")]
+        [KeyboardButton(text="👤 Профиль")],
+        [KeyboardButton(text="💬 Помощь")]
     ], resize_keyboard=True)
 
 
@@ -64,4 +64,17 @@ def log_in_keyboard(message_id: int) -> InlineKeyboardMarkup:
             text="Войти в Kwork",
             web_app=WebAppInfo(url=f"{config.WEBAPP_URL.get_secret_value()}?message_id={message_id}")
         )]
+    ])
+    
+    
+def help_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="📜 Инструкция", callback_data="manual")],
+        [InlineKeyboardButton(text="👨‍👩‍👦‍👦 Поддержка", callback_data="support")]
+    ])
+    
+    
+def help_back_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🔙 Назад", callback_data="back")]
     ])
