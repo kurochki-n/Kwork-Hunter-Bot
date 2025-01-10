@@ -101,8 +101,7 @@ async def auth(
 async def handle_temp_message(user_id: int):
     temp_message = await bot.send_message(
         chat_id=user_id, 
-        text=loc.temp_message(seconds=5),
-        reply_markup=kb.main_keyboard()
+        text=loc.temp_message(seconds=5)
     )
     await asyncio.sleep(1)
     
