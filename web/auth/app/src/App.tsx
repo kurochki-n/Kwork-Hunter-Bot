@@ -179,7 +179,7 @@ function App() {
     setIsLoading(true);
     
     try {
-      const userId = 1234567890;
+      const userId = tg?.initDataUnsafe?.user?.id;
       
       if (!userId) {
         setError('Ошибка: не удалось получить ID пользователя');
@@ -195,17 +195,16 @@ function App() {
       const timeout = setTimeout(() => controller.abort(), 30000);
       
       try {
-        const response = await fetch(`http://0.0.0.0:5000/auth`, {
+        const response = await fetch(`/auth`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            login,
-            password,
-            user_id: userId,
-            message_id: messageId
+            login: login,
+            password: password,
+            user_id: Number(userId),
+            message_id: Number(messageId)
           }),
           credentials: 'include',
           signal: controller.signal

@@ -8,6 +8,8 @@ from fastapi import APIRouter, Body
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
+from pydantic import BaseModel
+
 from sqlalchemy import select
 
 from db import User
@@ -18,23 +20,27 @@ from config_reader import config
 
 
 router = APIRouter()
-    
+
+
+class Request(BaseModel):
+    login: str
+    password: str
+    user_id: int
+    message_id: int
+
 
 @router.post("/auth")
 async def auth(
-    login: str = Body(...),
-    password: str = Body(...),
-    user_id: int = Body(...),
-    message_id: int = Body(...)
+    request: Request
 ) -> JSONResponse:
     async with _sessionmaker() as db_session:
         try:
-            logging.info(f"Starting auth process for user_id: {user_id}")
+            logging.info(f"Starting auth process for user_id: {request.user_id}")
             connector = ProxyConnector.from_url(config.PROXY_URL.get_secret_value())
             async with ClientSession(connector=connector) as session:
                 kwork = KworkAPI(session)
                 logging.info("Attempting Kwork login")
-                success, _, response_data = await kwork.login(login, password)
+                success, _, response_data = await kwork.login(request.login, request.password)
                 
                 if not success:
                     error_message = response_data.get('error') if response_data else "Неизвестная ошибка"
@@ -43,15 +49,15 @@ async def auth(
                         status_code=400,
                         content=jsonable_encoder({
                             "ok": False, 
-                            "message": f"Kwork: {error_message}"
+                            "message": f"{error_message}"
                         }),
                         media_type="application/json"
                     )
                 
                 logging.info("Kwork login successful, updating database")
-                user = await db_session.scalar(select(User).where(User.id == user_id))
+                user = await db_session.scalar(select(User).where(User.id == request.user_id))
                 if not user:
-                    logging.error(f"User not found in database: {user_id}")
+                    logging.error(f"User not found in database: {request.user_id}")
                     return JSONResponse(
                         status_code=404,
                         content=jsonable_encoder({
@@ -61,16 +67,16 @@ async def auth(
                         media_type="application/json"
                     )
                     
-                user.kwork_login = login
-                user.kwork_password = password
+                user.kwork_login = request.login
+                user.kwork_password = request.password
                 await db_session.commit()
                 
                 try:
                     await bot.delete_message(
-                        chat_id=user_id, 
-                        message_id=message_id
+                        chat_id=request.user_id, 
+                        message_id=request.message_id
                     )
-                    asyncio.create_task(handle_temp_message(user_id))
+                    asyncio.create_task(handle_temp_message(request.user_id))
                 except Exception as e:
                     logging.error(f"Error deleting message: {e}")
                 
