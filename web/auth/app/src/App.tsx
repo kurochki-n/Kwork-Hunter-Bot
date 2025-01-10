@@ -195,7 +195,7 @@ function App() {
       const timeout = setTimeout(() => controller.abort(), 30000);
       
       try {
-        const response = await fetch(`https://0.0.0.0:8000/auth`, {
+        const response = await fetch(`http://0.0.0.0:5000/auth`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
