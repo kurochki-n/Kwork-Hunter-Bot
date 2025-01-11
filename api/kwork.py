@@ -73,15 +73,30 @@ class KworkAPI(object):
         url = self.create_projects_url()
         body = self.create_body(a=1)
         projects = []
-        projects_count = 0
+        # projects_count = 0
         
+        # async with self.session.post(url, headers=self.headers, data=body) as response:
+        #     if response.status == 200:
+        #         response_data = await response.json()
+        #         if response_data["success"]:
+        #             attributes_count = response_data["data"]["attributesCount"]
+        #             for _, count in attributes_count.items():
+        #                 projects_count += int(count)
+        #             projects.extend(response_data["data"]["pagination"]["data"])
+        #         else:
+        #             logging.error(f"Failed to get projects with error: {response_data['error']}")
+        #             return False, None
+        #     else:
+        #         logging.error(f"Failed to get projects with status code: {response.status}")
+        #         return False, None
+            
+        # pages_count = projects_count // 12 + 1 if projects_count % 12 != 0 else projects_count // 12
+        # for page in range(2, pages_count + 1):
+        # url = self.create_projects_url(page)
         async with self.session.post(url, headers=self.headers, data=body) as response:
             if response.status == 200:
                 response_data = await response.json()
                 if response_data["success"]:
-                    attributes_count = response_data["data"]["attributesCount"]
-                    for _, count in attributes_count.items():
-                        projects_count += int(count)
                     projects.extend(response_data["data"]["pagination"]["data"])
                 else:
                     logging.error(f"Failed to get projects with error: {response_data['error']}")
@@ -89,21 +104,6 @@ class KworkAPI(object):
             else:
                 logging.error(f"Failed to get projects with status code: {response.status}")
                 return False, None
-            
-        pages_count = projects_count // 12 + 1 if projects_count % 12 != 0 else projects_count // 12
-        for page in range(2, pages_count + 1):
-            url = self.create_projects_url(page)
-            async with self.session.post(url, headers=self.headers, data=body) as response:
-                if response.status == 200:
-                    response_data = await response.json()
-                    if response_data["success"]:
-                        projects.extend(response_data["data"]["pagination"]["data"])
-                    else:
-                        logging.error(f"Failed to get projects with error: {response_data['error']}")
-                        return False, None
-                else:
-                    logging.error(f"Failed to get projects with status code: {response.status}")
-                    return False, None
             
         return True, projects
 

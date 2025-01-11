@@ -35,7 +35,11 @@ def project_keyboard(
         [InlineKeyboardButton(
             text="Предложить услугу", 
             web_app=WebAppInfo(url=f"https://kwork.ru/new_offer?project={project_id}")
-        )]
+        )],
+        [InlineKeyboardButton(
+            text="🗑 Скрыть", 
+            callback_data=f"hide_project"
+        )],
     ])
     
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)

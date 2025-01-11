@@ -135,6 +135,12 @@ async def back(callback: CallbackQuery) -> None:
     await callback.message.edit_text(text=loc.help_sections(), reply_markup=kb.help_keyboard())
 
 
+@router.callback_query(F.data == "hide_project")
+async def hide_project(callback: CallbackQuery) -> None:
+    await callback.answer()
+    await callback.message.delete()
+
+
 
 
 
