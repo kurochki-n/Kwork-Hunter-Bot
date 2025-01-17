@@ -1,5 +1,4 @@
 import uvicorn
-import logging
 import logging_config
 
 from typing import AsyncGenerator
@@ -49,6 +48,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     await bot.delete_webhook(True)
     await bot.session.close()
     await _engine.dispose()
+
 
 dp = Dispatcher(storage=MemoryStorage())
 

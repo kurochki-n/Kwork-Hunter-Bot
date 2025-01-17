@@ -15,7 +15,7 @@ from bot.middlewares.channel_sub import CheckSubscription
 from api.kwork import KworkAPI
 from db import User
 from bot.utils import tools
-
+from utils.cryptographer import encrypt, decrypt
 
 router = Router()
 router.message.middleware.register(CheckSubscription())
@@ -71,7 +71,7 @@ async def enable_projects_tracking(callback: CallbackQuery, db_session: AsyncSes
     
     async with ClientSession() as session:
         kwork = KworkAPI(session)
-        success, cookie, _ = await kwork.login(user.kwork_login, user.kwork_password)
+        success, cookie, _ = await kwork.login(decrypt(user.kwork_login), decrypt(user.kwork_password))
         
         if not success:
             message = await callback.message.answer(
@@ -85,7 +85,7 @@ async def enable_projects_tracking(callback: CallbackQuery, db_session: AsyncSes
             return
         
         cookie_str = '; '.join([f"{key}={morsel.value}" for key, morsel in cookie.items()])
-        user.kwork_cookie = cookie_str
+        user.kwork_cookie = encrypt(cookie_str)
         await db_session.commit()
         
         scheduler.add_job(

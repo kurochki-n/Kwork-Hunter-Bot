@@ -14,8 +14,8 @@ from sqlalchemy import select
 from db import User
 from core import _sessionmaker, bot
 from api.kwork import KworkAPI
-from bot.handlers import localization as loc, keyboards as kb
-
+from bot.handlers import localization as loc
+from utils.cryptographer import encrypt, decrypt
 
 router = APIRouter()
 
@@ -64,8 +64,8 @@ async def auth(
                         media_type="application/json"
                     )
                     
-                user.kwork_login = request.login
-                user.kwork_password = request.password
+                user.kwork_login = encrypt(request.login)
+                user.kwork_password = encrypt(request.password)
                 await db_session.commit()
                 
                 try:

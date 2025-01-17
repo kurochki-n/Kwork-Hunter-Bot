@@ -4,11 +4,11 @@ from typing import Optional
 
 from tuna_manager import start_tuna
 
+
 class Config(BaseSettings):
     BOT_TOKEN: SecretStr
     CHANNEL_ID: SecretStr
     DB_URL: SecretStr
-    PROXY_URL: SecretStr
 
     WEBAPP_PORT: int
     WEBHOOK_PORT: int

@@ -9,6 +9,7 @@ from api.kwork import KworkAPI
 from bot.handlers import localization as loc
 from bot.handlers import keyboards as kb
 from db.models import User
+from utils.cryptographer import decrypt
 
 
 async def get_admins() -> List[int]:
@@ -23,7 +24,7 @@ async def get_admins() -> List[int]:
 async def projects_tracking(user: User, message: Message, db_session: AsyncSession) -> None:
     async with ClientSession() as session:
         kwork = KworkAPI(session)
-        kwork.headers["Cookie"] = user.kwork_cookie
+        kwork.headers["Cookie"] = decrypt(user.kwork_cookie)
         success, projects = await kwork.get_projects()
         if not success:
             return
