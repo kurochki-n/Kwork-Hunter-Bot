@@ -7,10 +7,9 @@ from .base import Base
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    kwork_login: Mapped[str] = mapped_column(LargeBinary(), nullable=True)
-    kwork_password: Mapped[str] = mapped_column(LargeBinary(), nullable=True)
-    kwork_cookie: Mapped[str] = mapped_column(LargeBinary(), nullable=True)
-    last_projects: Mapped[list[int]] = mapped_column(ARRAY(BigInteger), nullable=True, default=[])
-
+    id: Mapped[BigInteger] = mapped_column(BigInteger, primary_key=True)
+    kwork_login: Mapped[LargeBinary] = mapped_column(LargeBinary(), nullable=True)
+    kwork_password: Mapped[LargeBinary] = mapped_column(LargeBinary(), nullable=True)
+    kwork_cookie: Mapped[LargeBinary] = mapped_column(LargeBinary(), nullable=True)
+    last_projects: Mapped[list[BigInteger]] = mapped_column(ARRAY(BigInteger), nullable=True, default=[])
 

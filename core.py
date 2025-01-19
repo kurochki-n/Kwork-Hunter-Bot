@@ -12,5 +12,5 @@ bot = Bot(
     default=DefaultBotProperties(parse_mode=ParseMode.HTML)
 )
 
-_engine = create_async_engine(config.DB_URL.get_secret_value())
-_sessionmaker = async_sessionmaker(_engine, expire_on_commit=False) 
+_engine = create_async_engine(url=config.DB_URL.get_secret_value())
+_sessionmaker = async_sessionmaker(bind=_engine, expire_on_commit=False) 

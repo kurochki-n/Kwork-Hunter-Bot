@@ -30,7 +30,7 @@ class KworkAPI(object):
             password (str): Kwork password
 
         Returns:
-            Tuple[Dict[str, Any] | None, bool]: Login response, success.
+            Tuple[bool, SimpleCookie, Dict[str, Any] | None]: Success, cookie, login response.
             {
                 "success": bool,
                 "error": str,

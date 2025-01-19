@@ -1,6 +1,7 @@
 import uvicorn
 import logging_config
 
+from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -22,6 +23,7 @@ from web.auth.api_router import router
 from core import bot, _engine, _sessionmaker
 
 
+@asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator:
     webhook_url = f"{config.WEBHOOK_URL.get_secret_value()}/webhook"
     webhook_pid = config.WEBHOOK_PID

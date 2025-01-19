@@ -24,7 +24,7 @@ def project_keyboard(
             buttons.append([
                 InlineKeyboardButton(
                     text=f"📎 {file['fname']}", 
-                    web_app=WebAppInfo(url=file["url"])
+                    web_app=WebAppInfo(url=f"{file['url']}")
                 )
             ])
     buttons.extend([

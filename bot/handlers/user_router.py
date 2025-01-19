@@ -1,3 +1,5 @@
+import os
+
 from aiohttp import ClientSession
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -16,6 +18,7 @@ from api.kwork import KworkAPI
 from db import User
 from bot.utils import tools
 from utils.cryptographer import encrypt, decrypt
+
 
 router = Router()
 router.message.middleware.register(CheckSubscription())
@@ -92,7 +95,7 @@ async def enable_projects_tracking(callback: CallbackQuery, db_session: AsyncSes
             func=tools.projects_tracking, 
             id=str(user.id), 
             trigger="interval", 
-            minutes=2, 
+            minutes=1, 
             kwargs={
                 "user": user, 
                 "message": callback.message, 

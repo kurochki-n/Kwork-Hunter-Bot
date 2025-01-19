@@ -15,7 +15,8 @@ from db import User
 from core import _sessionmaker, bot
 from api.kwork import KworkAPI
 from bot.handlers import localization as loc
-from utils.cryptographer import encrypt, decrypt
+from utils.cryptographer import encrypt
+
 
 router = APIRouter()
 
@@ -96,7 +97,7 @@ async def auth(
                 }),
                 media_type="application/json"
             )
-        
+
         
 async def handle_temp_message(user_id: int):
     temp_message = await bot.send_message(
