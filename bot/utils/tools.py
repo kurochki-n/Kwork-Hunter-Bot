@@ -35,12 +35,6 @@ async def projects_tracking(user: User, message: Message, db_session: AsyncSessi
             projects_ids.append(project.get("id"))
             if project.get("id") not in user.last_projects:
                 files = project.get("files")
-                if files:
-                    media = []
-                    for file in files:
-                        media.append(InputMediaDocument(media=file["url"]))
-                    await message.answer_media_group(media=media)
-                    return
                 await message.answer(
                     text=loc.project_info(project), 
                     reply_markup=kb.project_keyboard(project_id=project["id"], files=files), 
