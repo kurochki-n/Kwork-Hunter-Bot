@@ -59,8 +59,8 @@ app.include_router(router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://kworkhunter-webapp.ru.tuna.am",
-        "https://kworkhunter-test-webapp.ru.tuna.am"
+        "https://projecthunter-webapp.ru.tuna.am",
+        "https://projecthunter-test-webapp.ru.tuna.am"
     ],
     allow_credentials=True,
     allow_methods=["*"],
