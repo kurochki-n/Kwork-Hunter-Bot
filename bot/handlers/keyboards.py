@@ -13,21 +13,8 @@ def main_keyboard() -> ReplyKeyboardMarkup:
     ], resize_keyboard=True)
 
 
-def project_keyboard(
-    project_id: int,
-    files: List[Dict[str, Any]] = None,
-) -> InlineKeyboardMarkup:
-    buttons = []
-    
-    if files:
-        for file in files:
-            buttons.append([
-                InlineKeyboardButton(
-                    text=f"📎 {file['fname']}", 
-                    web_app=WebAppInfo(url=file["url"])
-                )
-            ])
-    buttons.extend([
+def project_keyboard(project_id: int) -> InlineKeyboardMarkup:
+    buttons = [
         [InlineKeyboardButton(
             text="Открыть проект", 
             web_app=WebAppInfo(url=f"https://kwork.ru/projects/{project_id}/view")
@@ -40,7 +27,7 @@ def project_keyboard(
             text="🗑 Скрыть", 
             callback_data=f"hide_project"
         )],
-    ])
+    ]
     
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
     return keyboard
@@ -55,7 +42,7 @@ def channel_keyboard() -> InlineKeyboardMarkup:
     
 def profile_keyboard(user: User) -> InlineKeyboardMarkup:
     buttons = []
-    if user.kwork_cookie:
+    if user.kwork_session.cookie:
         buttons.append([InlineKeyboardButton(text="Выключить отслеживание проектов", callback_data="disable_tracking")])
     else:
         buttons.append([InlineKeyboardButton(text="Включить отслеживание проектов", callback_data="enable_tracking")])

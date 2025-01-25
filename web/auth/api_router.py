@@ -65,8 +65,8 @@ async def auth(
                         media_type="application/json"
                     )
                     
-                user.kwork_login = encrypt(request.login)
-                user.kwork_password = encrypt(request.password)
+                user.kwork_session.login = encrypt(request.login)
+                user.kwork_session.password = encrypt(request.password)
                 await db_session.commit()
                 
                 try:

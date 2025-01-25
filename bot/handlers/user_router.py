@@ -30,7 +30,7 @@ async def start(message: Message, db_session: AsyncSession) -> None:
     await message.answer(text=loc.start_message(message.from_user.username), reply_markup=kb.main_keyboard())
     
     user = await db_session.scalar(select(User).where(User.id == message.from_user.id))
-    if not user.kwork_login:
+    if not user.kwork_session.login:
         msg = await message.answer(
             text=loc.enter_kwork_login(), 
             reply_markup=kb.log_in_keyboard(
@@ -61,7 +61,7 @@ async def help(message: Message, state: FSMContext, db_session: AsyncSession) ->
 async def enable_projects_tracking(callback: CallbackQuery, db_session: AsyncSession, scheduler: AsyncIOScheduler) -> None:
     user = await db_session.scalar(select(User).where(User.id == callback.from_user.id))
     
-    if not user.kwork_login:
+    if not user.kwork_session.login:
         message = await callback.message.answer(
             text=loc.enter_kwork_login(), 
             reply_markup=kb.log_in_keyboard(
@@ -113,7 +113,7 @@ async def disable_projects_tracking(callback: CallbackQuery, db_session: AsyncSe
     
     scheduler.remove_job(str(user.id))
     
-    user.kwork_cookie = None
+    user.kwork_session.cookie = None
     await db_session.commit()
     
     await callback.message.edit_reply_markup(reply_markup=kb.profile_keyboard(user))

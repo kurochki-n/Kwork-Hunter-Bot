@@ -18,7 +18,16 @@ class CheckUserExistence(BaseMiddleware):
         user = await data["db_session"].scalar(select(User).where(User.id == event.from_user.id))
         
         if not user:
-            user = User(id=event.from_user.id)
+            user = User(
+                id=event.from_user.id,
+                username=event.from_user.username,
+                first_name=event.from_user.first_name,
+                last_name=event.from_user.last_name,
+                language_code=event.from_user.language_code,
+                is_bot=event.from_user.is_bot,
+                is_premium=event.from_user.is_premium,
+                is_admin=False
+            )
             data["db_session"].add(user)
             await data["db_session"].commit()
         return await handler(event, data)

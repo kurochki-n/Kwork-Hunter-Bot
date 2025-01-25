@@ -177,3 +177,9 @@ class KworkAPI(object):
             else:
                 logging.error(f"Failed to create offer with status code: {response.status}")
                 return False
+            
+            
+    async def get_file_content(self, url: str) -> bytes:
+        async with self.session.get(url, headers=self.headers) as response:
+            return await response.content.read()
+            
