@@ -22,7 +22,7 @@ class User(Base):
 class KworkSession(Base):
     __tablename__ = "kwork_sessions"
     
-    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"), primary_key=True)
     login: Mapped[LargeBinary] = mapped_column(LargeBinary(), nullable=True)
     password: Mapped[LargeBinary] = mapped_column(LargeBinary(), nullable=True)
     cookie: Mapped[LargeBinary] = mapped_column(LargeBinary(), nullable=True)
