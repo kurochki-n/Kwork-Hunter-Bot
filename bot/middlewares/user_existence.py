@@ -4,7 +4,7 @@ from aiogram import BaseMiddleware
 from aiogram.types import Message, CallbackQuery
 
 from sqlalchemy import select
-from db import User
+from db import User, KworkSession
 
 
 class CheckUserExistence(BaseMiddleware):
@@ -29,5 +29,7 @@ class CheckUserExistence(BaseMiddleware):
                 is_admin=False
             )
             data["db_session"].add(user)
+            kwork_session = KworkSession(user_id=user.id)
+            data["db_session"].add(kwork_session)
             await data["db_session"].commit()
         return await handler(event, data)
