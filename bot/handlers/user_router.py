@@ -10,6 +10,7 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import localization as loc, keyboards as kb
@@ -29,7 +30,11 @@ router.callback_query.middleware.register(CheckSubscription())
 async def start(message: Message, db_session: AsyncSession) -> None:
     await message.answer(text=loc.start_message(message.from_user.username), reply_markup=kb.main_keyboard())
     
-    user = await db_session.scalar(select(User).where(User.id == message.from_user.id))
+    user = await db_session.scalar(
+        select(User)
+        .options(selectinload(User.kwork_session))
+        .where(User.id == message.from_user.id)
+    )
     if not user.kwork_session.login:
         msg = await message.answer(
             text=loc.enter_kwork_login(), 
@@ -59,7 +64,11 @@ async def help(message: Message, state: FSMContext, db_session: AsyncSession) ->
     
 @router.callback_query(F.data == "enable_tracking")
 async def enable_projects_tracking(callback: CallbackQuery, db_session: AsyncSession, scheduler: AsyncIOScheduler) -> None:
-    user = await db_session.scalar(select(User).where(User.id == callback.from_user.id))
+    user = await db_session.scalar(
+        select(User)
+        .options(selectinload(User.kwork_session))
+        .where(User.id == callback.from_user.id)
+    )
     
     if not user.kwork_session.login:
         message = await callback.message.answer(
@@ -109,7 +118,11 @@ async def enable_projects_tracking(callback: CallbackQuery, db_session: AsyncSes
         
 @router.callback_query(F.data == "disable_tracking")
 async def disable_projects_tracking(callback: CallbackQuery, db_session: AsyncSession, scheduler: AsyncIOScheduler) -> None:
-    user = await db_session.scalar(select(User).where(User.id == callback.from_user.id))
+    user = await db_session.scalar(
+        select(User)
+        .options(selectinload(User.kwork_session))
+        .where(User.id == callback.from_user.id)
+    )
     
     scheduler.remove_job(str(user.id))
     

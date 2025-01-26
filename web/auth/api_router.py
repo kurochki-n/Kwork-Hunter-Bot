@@ -10,6 +10,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from db import User
 from core import _sessionmaker, bot
@@ -53,7 +54,11 @@ async def auth(
                     )
                 
                 logging.info("Kwork login successful, updating database")
-                user = await db_session.scalar(select(User).where(User.id == request.user_id))
+                user = await db_session.scalar(
+                    select(User)
+                    .options(selectinload(User.kwork_session))
+                    .where(User.id == request.user_id)
+                )
                 if not user:
                     logging.error(f"User not found in database: {request.user_id}")
                     return JSONResponse(
