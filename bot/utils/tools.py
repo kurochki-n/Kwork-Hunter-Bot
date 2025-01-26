@@ -38,11 +38,6 @@ async def projects_tracking(user: User, message: Message, db_session: AsyncSessi
         for project in projects:
             projects_ids.append(project.get("id"))
             if project.get("id") not in user.kwork_session.last_projects:
-                await message.answer(
-                    text=loc.project_info(project), 
-                    reply_markup=kb.project_keyboard(project_id=project["id"]), 
-                    disable_web_page_preview=True
-                )
                 for file in project.get("files"):
                     content = await kwork.get_file_content(url=file["url"])
                     os.makedirs("temp", exist_ok=True)
@@ -55,6 +50,11 @@ async def projects_tracking(user: User, message: Message, db_session: AsyncSessi
                         document=FSInputFile(filepath)
                     )
                     os.remove(filepath)
+                await message.answer(
+                    text=loc.project_info(project), 
+                    reply_markup=kb.project_keyboard(project_id=project["id"]), 
+                    disable_web_page_preview=True
+                )
                 
         user.kwork_session.last_projects = projects_ids
         await db_session.commit()
