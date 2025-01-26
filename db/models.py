@@ -8,9 +8,9 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
-    username: Mapped[str] = mapped_column(String, nullable=False)
-    first_name: Mapped[str] = mapped_column(String, nullable=False)
-    last_name: Mapped[str] = mapped_column(String, nullable=False)
+    username: Mapped[str] = mapped_column(String, nullable=True)
+    first_name: Mapped[str] = mapped_column(String, nullable=True)
+    last_name: Mapped[str] = mapped_column(String, nullable=True)
     language_code: Mapped[str] = mapped_column(String, nullable=False)
     is_bot: Mapped[bool] = mapped_column(Boolean, nullable=False)
     is_premium: Mapped[bool] = mapped_column(Boolean, nullable=False)
