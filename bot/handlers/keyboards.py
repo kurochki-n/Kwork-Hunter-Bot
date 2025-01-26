@@ -35,7 +35,7 @@ def project_keyboard(project_id: int) -> InlineKeyboardMarkup:
 
 def channel_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Подписаться", url="https://t.me/kwork_hunter")],
+        [InlineKeyboardButton(text="Подписаться", url="https://t.me/KProjectHunter")],
         [InlineKeyboardButton(text="Я подписался", callback_data="check_sub")]
     ])
     
