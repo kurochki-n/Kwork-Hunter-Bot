@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     scheduler.start()
     
     async with _engine.begin() as connection:
-        await connection.run_sync(Base.metadata.clear)
+        await connection.run_sync(Base.metadata.drop_all)
         await connection.run_sync(Base.metadata.create_all)
         
     yield
