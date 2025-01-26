@@ -101,12 +101,16 @@ async def enable_projects_tracking(callback: CallbackQuery, db_session: AsyncSes
             return
         
         cookie_str = '; '.join([f"{key}={morsel.value}" for key, morsel in cookie.items()])
-        user.kwork_cookie = encrypt(cookie_str)
+        user.kwork_session.cookie = encrypt(cookie_str)
         await db_session.commit()
         
+        job_id = str(user.id)
+        if scheduler.get_job(job_id):
+            scheduler.remove_job(job_id)
+            
         scheduler.add_job(
             func=tools.projects_tracking, 
-            id=str(user.id), 
+            id=job_id, 
             trigger="interval", 
             minutes=1, 
             kwargs={
