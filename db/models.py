@@ -28,4 +28,4 @@ class KworkSession(Base):
     cookie: Mapped[LargeBinary] = mapped_column(LargeBinary(), nullable=True)
     last_projects: Mapped[list[BigInteger]] = mapped_column(ARRAY(BigInteger), nullable=True, default=[])
     
-    user: Mapped["User"] = relationship("User", back_populates="kwork_sessions", foreign_keys=[user_id])
+    user: Mapped["User"] = relationship("User", back_populates="kwork_session", foreign_keys=[user_id])
