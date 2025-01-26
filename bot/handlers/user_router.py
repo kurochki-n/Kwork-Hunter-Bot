@@ -87,7 +87,7 @@ async def enable_projects_tracking(callback: CallbackQuery, db_session: AsyncSes
     
     async with ClientSession() as session:
         kwork = KworkAPI(session)
-        success, cookie, _ = await kwork.login(decrypt(user.kwork_login), decrypt(user.kwork_password))
+        success, cookie, _ = await kwork.login(decrypt(user.kwork_session.login), decrypt(user.kwork_session.password))
         
         if not success:
             message = await callback.message.answer(
