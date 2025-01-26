@@ -53,7 +53,11 @@ async def check_sub(callback: CallbackQuery) -> None:
     
 @router.message(F.text == "👤 Профиль")
 async def profile(message: Message, db_session: AsyncSession) -> None:
-    user = await db_session.scalar(select(User).where(User.id == message.from_user.id))
+    user = await db_session.scalar(
+        select(User)
+        .options(selectinload(User.kwork_session))
+        .where(User.id == message.from_user.id)
+    )
     await message.answer(text=loc.user_profile(user, message.from_user.username), reply_markup=kb.profile_keyboard(user))
     
     
