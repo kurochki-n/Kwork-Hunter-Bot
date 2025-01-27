@@ -25,7 +25,7 @@ class CheckUserExistence(BaseMiddleware):
                 last_name=event.from_user.last_name,
                 language_code=event.from_user.language_code,
                 is_bot=event.from_user.is_bot,
-                is_premium=event.from_user.is_premium,
+                is_premium=event.from_user.is_premium is not None,
                 is_admin=False
             )
             data["db_session"].add(user)
