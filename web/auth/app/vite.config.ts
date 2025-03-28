@@ -11,7 +11,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/auth': {
-        target: 'https://projecthunter-webhook.ru.tuna.am',
+        target: 'https://domain.com',
         changeOrigin: true
       }
     }
