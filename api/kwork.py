@@ -1,14 +1,51 @@
 import logging
+import traceback
+from typing import Dict, Any, Tuple, Optional
 
-from typing import Dict, Any, Tuple
-
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+from sqlalchemy.ext.asyncio import AsyncSession
 from aiohttp import ClientSession
 from http.cookies import SimpleCookie
+
+from db import User
+from cryptographer import encrypt
+
+
+async def auth(login: str, password: str, user_id: int, db_session: AsyncSession) -> Tuple[bool, Optional[str]]:
+    try:
+        logging.info(f"Starting auth process for user_id: {user_id}")
+        async with ClientSession() as session:
+            kwork = KworkAPI(session)
+            logging.info("Attempting Kwork login")
+            success, _, response_data = await kwork.login(login, password)
+            
+            if not success:
+                error_message = response_data.get('error') if response_data else "Неизвестная ошибка"
+                logging.error(f"Kwork login failed: {error_message}")
+                return False, error_message
+            
+            logging.info("Kwork login successful, updating database")
+            user = await db_session.scalar(
+                select(User)
+                .options(selectinload(User.kwork_session))
+                .where(User.id == user_id)
+            )
+            user.kwork_session.login = encrypt(login)
+            user.kwork_session.password = encrypt(password)
+            await db_session.commit()
+            
+            return True, None
+        
+    except Exception as e:
+        logging.error(f"Auth error: {str(e)}\n{traceback.format_exc()}")
+        await db_session.rollback()
+        return False, "Неизвестная ошибка"
 
 
 class KworkAPI(object):
     
-    def __init__(self, session: ClientSession):
+    def __init__(self, session: ClientSession) -> None:
         self.session = session
         self.headers = {
             "Accept": "application/json, text/plain, */*",
@@ -21,8 +58,7 @@ class KworkAPI(object):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
         }
         
-        
-    async def login(self, username: str, password: str) -> Tuple[bool, SimpleCookie, Dict[str, Any] | None]:
+    async def login(self, username: str, password: str) -> Tuple[bool, Optional[SimpleCookie], Optional[Dict[str, Any]]]:
         """Login to Kwork.
 
         Args:
@@ -31,14 +67,6 @@ class KworkAPI(object):
 
         Returns:
             Tuple[bool, SimpleCookie, Dict[str, Any] | None]: Success, cookie, login response.
-            {
-                "success": bool,
-                "error": str,
-                "redirect": str,
-                "action_after": str,
-                "isUserVerified": bool,
-                "csrftoken": str
-            }
         """
         url = "https://kwork.ru/api/user/login"
         body = {
@@ -63,36 +91,16 @@ class KworkAPI(object):
                 logging.error(f"Login failed with status code: {response.status}")
                 return False, None, None
 
-
-    async def get_projects(self) -> Tuple[bool, Dict[str, Any] | None]:
+    async def get_projects(self) -> Tuple[bool, Optional[Dict[str, Any]]]:
         """Get projects.
 
         Returns:
             Tuple[Dict[str, Any] | None, bool]: Projects, success.
         """
-        url = self.create_projects_url()
+        url = "https://kwork.ru/projects?a=1&page=1"
         body = self.create_body(a=1)
         projects = []
-        # projects_count = 0
-        
-        # async with self.session.post(url, headers=self.headers, data=body) as response:
-        #     if response.status == 200:
-        #         response_data = await response.json()
-        #         if response_data["success"]:
-        #             attributes_count = response_data["data"]["attributesCount"]
-        #             for _, count in attributes_count.items():
-        #                 projects_count += int(count)
-        #             projects.extend(response_data["data"]["pagination"]["data"])
-        #         else:
-        #             logging.error(f"Failed to get projects with error: {response_data['error']}")
-        #             return False, None
-        #     else:
-        #         logging.error(f"Failed to get projects with status code: {response.status}")
-        #         return False, None
-            
-        # pages_count = projects_count // 12 + 1 if projects_count % 12 != 0 else projects_count // 12
-        # for page in range(2, pages_count + 1):
-        # url = self.create_projects_url(page)
+
         async with self.session.post(url, headers=self.headers, data=body) as response:
             if response.status == 200:
                 response_data = await response.json()
@@ -106,19 +114,6 @@ class KworkAPI(object):
                 return False, None
             
         return True, projects
-
-
-    def create_projects_url(self, page: int = 1) -> str:
-        """Create projects url.
-
-        Args:
-            page (int, optional): Page number. Defaults to 1.
-
-        Returns:
-            str: Projects url.
-        """
-        return f"https://kwork.ru/projects?a=1&page={page}"
-    
     
     def create_body(self, **kwargs) -> str:
         """Create the request body.
@@ -134,50 +129,6 @@ class KworkAPI(object):
             body += f"------WebKitFormBoundary\nContent-Disposition: form-data; name='{key}'\n\n{value}\n"
         body += "-----WebKitFormBoundary--"
         return body
-    
-    
-    async def create_offer(
-        self, 
-        project_id: int, 
-        description: str, 
-        kwork_duration: int, 
-        kwork_price: int, 
-        kwork_name: str
-    ) -> bool:
-        """Create offer.
-
-        Args:
-            project_id (int): Project id.
-            description (str): Offer description.
-            kwork_duration (int): Offer duration.
-            kwork_price (int): Offer price.
-            kwork_name (str): Offer name.
-
-        Returns:
-            bool: Success.
-        """
-        url = "https://kwork.ru/api/offer/createoffer"
-        body = self.create_body(
-            wantId=project_id, 
-            offerType="custom", 
-            description=description, 
-            kwork_duration=kwork_duration, 
-            kwork_price=kwork_price, 
-            kwork_name=f"<div>{kwork_name}</div>"
-        )
-        
-        async with self.session.post(url, headers=self.headers, data=body) as response:
-            if response.status == 200:
-                response_data = await response.json()
-                if response_data["success"]:
-                    return True
-                else:
-                    logging.error(f"Failed to create offer with error: {response_data['data']['error']}")
-                    return False
-            else:
-                logging.error(f"Failed to create offer with status code: {response.status}")
-                return False
-            
             
     async def get_file_content(self, url: str) -> bytes:
         async with self.session.get(url, headers=self.headers) as response:

@@ -2,7 +2,6 @@ from typing import Callable, Awaitable, Any, Dict
 
 from aiogram import BaseMiddleware
 from aiogram.types import Message, CallbackQuery
-
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 
@@ -20,4 +19,3 @@ class DBSessionMiddleware(BaseMiddleware):
         async with self._session_pool() as session:
             data["db_session"] = session
             return await handler(event, data)
-

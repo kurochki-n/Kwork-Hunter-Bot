@@ -22,14 +22,11 @@ class CheckUserExistence(BaseMiddleware):
                 id=event.from_user.id,
                 username=event.from_user.username,
                 first_name=event.from_user.first_name,
-                last_name=event.from_user.last_name,
-                language_code=event.from_user.language_code,
-                is_bot=event.from_user.is_bot,
-                is_premium=event.from_user.is_premium is not None,
-                is_admin=False
+                last_name=event.from_user.last_name
             )
             data["db_session"].add(user)
             kwork_session = KworkSession(user_id=user.id)
             data["db_session"].add(kwork_session)
             await data["db_session"].commit()
+            
         return await handler(event, data)
